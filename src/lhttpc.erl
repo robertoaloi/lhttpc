@@ -35,7 +35,7 @@
 
 -export([start/0, stop/0, start/2, stop/1,
          request/4, request/5, request/6, request/9,
-         add_pool/1, add_pool/2, add_pool/3,
+         add_pool/1, add_pool/2, add_pool/3, add_pool/4,
          delete_pool/1,
          send_body_part/2, send_body_part/3,
          send_trailers/2, send_trailers/3,
@@ -128,7 +128,16 @@ add_pool(Name, ConnTimeout) when is_atom(Name),
 -spec add_pool(atom(), non_neg_integer(), poolsize()) ->
           {ok, pid()} | {error, term()}.
 add_pool(Name, ConnTimeout, PoolSize) ->
-    ChildSpec = {Name,
+    add_pool(Name, Name, ConnTimeout, PoolSize).
+
+%%------------------------------------------------------------------------------
+%% @doc Add a new httpc_manager to the supervisor tree
+%% @end
+%%------------------------------------------------------------------------------
+-spec add_pool(term(), atom(), non_neg_integer(), poolsize()) ->
+          {ok, pid()} | {error, term()}.
+add_pool(Id, Name, ConnTimeout, PoolSize) ->
+    ChildSpec = {Id,
                  {lhttpc_manager, start_link, [[{name, Name},
                                                 {connection_timeout, ConnTimeout},
                                                 {pool_size, PoolSize}]]},

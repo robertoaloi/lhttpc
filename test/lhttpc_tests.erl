@@ -160,7 +160,8 @@ tcp_test_() ->
                 ?_test(close_connection()),
                 ?_test(message_queue()),
                 ?_test(trailing_space_header()),
-                ?_test(connection_count()) % just check that it's 0 (last)
+                ?_test(connection_count()), % just check that it's 0 (last)
+                ?_test(multiple_unnamed_pools())
             ]}
     }.
 
@@ -765,6 +766,14 @@ ssl_chunked() ->
 connection_count() ->
     timer:sleep(50), % give the TCP stack time to deliver messages
     ?assertEqual(0, lhttpc_manager:connection_count(lhttpc_manager)).
+
+multiple_unnamed_pools() ->
+    ConnTimeout = 1000,
+    PoolSize = 1,
+    ?assertMatch({ok, _P1},
+                 lhttpc:add_pool(1, undefined, ConnTimeout, PoolSize)),
+    ?assertMatch({ok, _P2},
+                 lhttpc:add_pool(2, undefined, ConnTimeout, PoolSize)).
 
 invalid_options() ->
     ?assertError({bad_option, bad_option},
